@@ -88,6 +88,8 @@ CheckTerrorShark = function()
 end
 
 --// ================= FLUENT UI =================
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/SleepyCattStar/CattStarTemp/refs/heads/main/Main.lua))()
+
 local SeaEventTab = Window:AddTab({
     Title = "Sea Event",
     Icon = "waves"
