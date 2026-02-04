@@ -22,6 +22,9 @@ do
     SoulGuitar = false
     KenTest = true
     debug = false
+    Brazier1 = false
+    Brazier2 = false
+    Brazier3 = false
     Sec = 0.1
     ClickState = 0
     Num_self = 25
@@ -71,7 +74,45 @@ gay = (function()
     end        
 end)()
 
-
+LowCpu = function()
+    local decalsyeeted = true
+    local g = game
+    local w = g.Workspace
+    local l = g.Lighting
+    local t = w.Terrain
+    t.WaterWaveSize = 0
+    t.WaterWaveSpeed = 0
+    t.WaterReflectance = 0
+    t.WaterTransparency = 0
+    l.GlobalShadows = false
+    l.FogEnd = 9e9
+    l.Brightness = 0
+    settings().Rendering.QualityLevel = "Level01"
+    for i, v in pairs(g:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
+            v.Transparency = 1
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Lifetime = NumberRange.new(0)
+        elseif v:IsA("Explosion") then
+            v.BlastPressure = 1
+            v.BlastRadius = 1
+        elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") or v:IsA("Sparkles") then
+            v.Enabled = false
+        elseif v:IsA("MeshPart") then
+            v.Material = "Plastic"
+            v.Reflectance = 0
+            v.TextureID = 10385902758728957
+        end
+    end
+    for i, e in pairs(l:GetChildren()) do
+        if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+            e.Enabled = false
+        end
+    end
+end
 CheckF = function()
     if GetBP("Dragon-Dragon") or GetBP("Gas-Gas") or GetBP("Yeti-Yeti") or GetBP("Kitsune-Kitsune") or GetBP("T-Rex-T-Rex") then
         return true
@@ -327,11 +368,17 @@ local Tabs = {
     Settings = Window:AddTab({ Title = "Tab Config", Icon = "settings" }),
     Melee = Window:AddTab({ Title = "Tab Fighting Style", Icon = "sword" }),
     Quests = Window:AddTab({ Title = "Tab Items Farm", Icon = "target" }),
+    New = Window:AddTab({ Title = "Tab Events", Icon = "star" }),
     SeaEvent = Window:AddTab({ Title = "Tab Sea Events", Icon = "anchor" }),
     Mirage = Window:AddTab({ Title = "Tab Mirage RaceV4", Icon = "moon" }),
+    Drago = Window:AddTab({ Title = "Tab Drago Dojo", Icon = "flame" }),
     Prehistoric = Window:AddTab({ Title = "Tab Prehistoric", Icon = "mountain" }),
+    Raids = Window:AddTab({ Title = "Tab Raid", Icon = "crosshair" }),
+    Combat = Window:AddTab({ Title = "Tab PvP", Icon = "swords" }),
     Travel = Window:AddTab({ Title = "Tab Location", Icon = "map" }),
-
+    Fruit = Window:AddTab({ Title = "Tab Fruits", Icon = "apple" }),
+    Shop = Window:AddTab({ Title = "Tab Shop", Icon = "shopping-bag" }),
+    Misc = Window:AddTab({ Title = "Tab Misc", Icon = "grid" })
 }
 
 Tabs.Settings:AddSection("Settings / Configure")
@@ -390,7 +437,22 @@ spawn(function()
     end
 end)
 
-
+local Initialize = Tabs.Settings:AddToggle("Initialize", {
+    Title = "Auto Click",
+    Description = "[ Auto Click Melee,Sword,fruit M1 ]",
+    Default = true
+})
+Initialize:OnChanged(function(Value)
+    _G.Seriality = Value
+end)
+local Bringmob = Tabs.Settings:AddToggle("Bringmob", {
+    Title = "Bring Mobs",
+    Description = "",
+    Default = true
+})
+Bringmob:OnChanged(function(Value)
+    _B = Value
+end)
 local BusuAura = Tabs.Settings:AddToggle("BusuAura", {
     Title = "Auto Turn on Buso",
     Description = "",
@@ -415,7 +477,63 @@ spawn(function()
     end
 end)
 
-
+local RaceV3Aura = Tabs.Settings:AddToggle("RaceV3Aura", {
+    Title = "Auto Turn on Race V3",
+    Description = "",
+    Default = false
+})
+RaceV3Aura:OnChanged(function(Value)
+    _G.RaceClickAutov3 = Value
+end)
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            if _G.RaceClickAutov3 then
+                repeat
+                    replicated.Remotes.CommE:FireServer("ActivateAbility")
+                    wait(30)
+                until not _G.RaceClickAutov3
+            end
+        end)
+    end
+end)
+local RaceV4Aura = Tabs.Settings:AddToggle("RaceV4Aura", {
+    Title = "Auto Turn on Race V4",
+    Description = "",
+    Default = false
+})
+RaceV4Aura:OnChanged(function(Value)
+    _G.RaceClickAutov4 = Value
+end)
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            if _G.RaceClickAutov4 then
+                if plr.Character:FindFirstChild("RaceEnergy") then
+                    if plr.Character:FindFirstChild("RaceEnergy").Value == 1 then
+                        Useskills("nil", "Y")
+                    end
+                end
+            end
+        end)
+    end
+end)
+local RandomAround = Tabs.Settings:AddToggle("RandomAround", {
+    Title = "Auto Turn on Spin Position",
+    Description = "",
+    Default = false
+})
+RandomAround:OnChanged(function(Value)
+    RandomCFrame = Value
+end)
+local Byp = Tabs.Settings:AddToggle("Byp", {
+    Title = "Turn on Bypass Teleport",
+    Description = "",
+    Default = false
+})
+Byp:OnChanged(function(Value)
+    _G.Bypass = Value
+end)
 local SafeModes = Tabs.Settings:AddToggle("SafeModes", {
     Title = "Panic Mode",
     Description = "turn on for safe ur health if low",
@@ -748,8 +866,302 @@ spawn(function()
     end
 end)
 
-
-            
+Tabs.Mirage:AddSection("Skull Guitars / Misc")
+local CheckSoul = Tabs.Mirage:AddParagraph({
+    Title = " Skull Guitar Quests ",
+    Content = ""
+})
+spawn(function()
+    while wait(.2) do
+        pcall(function()
+            if Quest1 == true then
+                CheckSoul:SetDesc(" Quest Number : Quest1")
+            elseif Quest2 == true then
+                CheckSoul:SetDesc(" Quest Number : Quest2")
+            elseif Quest3 == true then
+                CheckSoul:SetDesc(" Quest Number : Quest3")
+            elseif Quest4 == true then
+                CheckSoul:SetDesc(" Quest Number : Quest4")
+            elseif GetWP("Skull Guitar") then
+                CheckSoul:SetDesc(" Quest Number : Collect!!")
+            else
+                CheckSoul:SetDesc(" Quest Number : No Quest!!")
+            end
+        end)
+    end
+end)
+local Q = Tabs.Mirage:AddToggle("Q", {
+    Title = "Auto Skull Guitar",
+    Description = "",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.Auto_Soul_Guitar = Value
+end)
+task.spawn(function()
+    while wait() do
+        if _G.Auto_Soul_Guitar then
+            pcall(function()
+                local v = GetConnectionEnemies("Living Zombie")
+                if v then
+                    v.HumanoidRootPart.CFrame = CFrame.new(- 10138.3974609375, 138.6524658203125, 5902.89208984375)
+                    v.Head.CanCollide = false
+                    v.Humanoid.Sit = false
+                    v.HumanoidRootPart.CanCollide = false
+                    v.Humanoid.JumpPower = 0
+                    v.Humanoid.WalkSpeed = 0
+                    if v.Humanoid:FindFirstChild('Animator') then
+                        v.Humanoid:FindFirstChild('Animator'):Destroy()
+                    end
+                end
+            end)
+        end
+    end
+end)
+function getT(num)
+    local rotation
+    if num == 1 then
+        rotation = workspace.Map["Haunted Castle"].Tablet.Segment1.Line.Rotation
+    elseif num == 3 then
+        rotation = workspace.Map["Haunted Castle"].Tablet.Segment3.Line.Rotation
+    elseif num == 4 then
+        rotation = workspace.Map["Haunted Castle"].Tablet.Segment4.Line.Rotation
+    elseif num == 7 then
+        rotation = workspace.Map["Haunted Castle"].Tablet.Segment7.Line.Rotation
+    elseif num == 10 then
+        rotation = workspace.Map["Haunted Castle"].Tablet.Segment10.Line.Rotation
+    end
+    if rotation then
+        return rotation.Z
+    end
+end
+function getRT(num)
+    local Trophy_Q = workspace.Map["Haunted Castle"].Trophies.Quest
+    local Trophy_Pos
+    for _, v in pairs(Trophy_Q:GetChildren()) do
+        if num == 1 and v.Name == "Trophy1" and v:FindFirstChild("Handle") then
+            Trophy_Pos = v.Handle.Rotation
+        elseif num == 2 and v.Name == "Trophy2" and v:FindFirstChild("Handle") then
+            Trophy_Pos = v.Handle.Rotation         
+        elseif num == 3 and v.Name == "Trophy3" and v:FindFirstChild("Handle") then
+            Trophy_Pos = v.Handle.Rotation       
+        elseif num == 4 and v.Name == "Trophy4" and v:FindFirstChild("Handle") then
+            Trophy_Pos = v.Handle.Rotation  
+        elseif num == 5 and v.Name == "Trophy5" and v:FindFirstChild("Handle") then
+            Trophy_Pos = v.Handle.Rotation     
+        end          
+        if Trophy_Pos then
+            return Trophy_Pos.Z   
+        end
+    end
+end
+GetFirePlacard = function(Number, Side)
+    if tostring(workspace.Map["Haunted Castle"]["Placard" .. Number][Side].Indicator.BrickColor) ~= "Pearl" then
+        fireclickdetector(workspace.Map["Haunted Castle"]["Placard" .. Number][Side].ClickDetector)
+    end
+end
+spawn(function()
+    repeat
+        task.wait()
+    until _G.Auto_Soul_Guitar
+    while wait(Sec) do
+        pcall(function()
+            if _G.Auto_Soul_Guitar then
+                if World3 then
+                    replicated.Remotes.CommF_:InvokeServer("gravestoneEvent", 2)
+                    replicated.Remotes.CommF_:InvokeServer("gravestoneEvent", 2, true)
+                    if replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Check") == nil then
+                        _tp(CFrame.new(- 8655.0166015625, 141.3166961669922, 6160.0224609375))
+                        replicated.Remotes.CommF_:InvokeServer("gravestoneEvent", 2)
+                        replicated.Remotes.CommF_:InvokeServer("gravestoneEvent", 2, true)
+                    elseif replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Check").Swamp == false then
+                        Quest1 = true;
+                        Quest2 = false;
+                        Quest3 = false;
+                        Quest4 = false;
+                        local v = GetConnectionEnemies("Living Zombie")
+                        if v then
+                            repeat
+                                task.wait()
+                                Attack.Kill(v, _G.Auto_Soul_Guitar)
+                            until not _G.Auto_Soul_Guitar or v.Humanoid.Health <= 0 or not v.Parent or workspace.Map["Haunted Castle"].SwampWater.Color ~= Color3.fromRGB(117, 0, 0)
+                        else
+                            _tp(CFrame.new(- 10170.7275390625, 138.6524658203125, 5934.26513671875))
+                        end
+                    elseif replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Check").Gravestones == false then
+                        Quest1 = false;
+                        Quest2 = true;
+                        Quest3 = false;
+                        Quest4 = false;
+                        GetFirePlacard("7", "Left")
+                        GetFirePlacard("6", "Left")
+                        GetFirePlacard("5", "Left")
+                        GetFirePlacard("4", "Right")
+                        GetFirePlacard("3", "Left")
+                        GetFirePlacard("2", "Right")
+                        GetFirePlacard("1", "Right")
+                    elseif replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Check").Ghost == false then
+                        replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Ghost")
+                        replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Ghost", true)
+                    elseif replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Check").Trophies == false then
+                        Quest1 = false;
+                        Quest2 = false;
+                        Quest3 = true;
+                        Quest4 = false;
+                        _tp(CFrame.new(- 9532.8232421875, 6.471667766571045, 6078.068359375))
+                        repeat
+                            wait()
+                            local z1 = getRT(1)
+                            local _z1 = getT(1)
+                            if z1 and _z1 then
+                                fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment1:FindFirstChild("ClickDetector"))
+                            end
+                        until z1 == _z1
+                        repeat
+                            wait()
+                            local z2 = getRT(2)
+                            local _z2 = getT(3)
+                            if z2 and _z2 then
+                                fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment3:FindFirstChild("ClickDetector"))
+                            end
+                        until z2 == _z2
+                        repeat
+                            wait()
+                            local z3 = getRT(3)
+                            local _z3 = getT(4)
+                            if z3 and _z3 then
+                                fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment4:FindFirstChild("ClickDetector"))
+                            end
+                        until z3 == _z3
+                        repeat
+                            wait()
+                            local z4 = getRT(4)
+                            local _z4 = getT(7)
+                            if z4 and _z4 then
+                                fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment7:FindFirstChild("ClickDetector"))
+                            end
+                        until z4 == _z4
+                        repeat
+                            wait()
+                            local z5 = getRT(5)
+                            local _z5 = getT(10)
+                            if z5 and _z5 then
+                                fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment10:FindFirstChild("ClickDetector"))
+                            end
+                        until z5 == _z5
+                        repeat
+                            wait()
+                            fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment2:FindFirstChild("ClickDetector"))
+                            fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment5:FindFirstChild("ClickDetector"))
+                            fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment6:FindFirstChild("ClickDetector"))
+                            fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment8:FindFirstChild("ClickDetector"))
+                            fireclickdetector(workspace.Map["Haunted Castle"].Tablet.Segment9:FindFirstChild("ClickDetector"))
+                        until workspace.Map["Haunted Castle"].Tablet.Segment2.Line.Rotation.Z == 0 or workspace.Map["Haunted Castle"].Tablet.Segment5.Line.Rotation.Z == 0 or workspace.Map["Haunted Castle"].Tablet.Segment6.Line.Rotation.Z == 0 or workspace.Map["Haunted Castle"].Tablet.Segment8.Line.Rotation.Z == 0 or workspace.Map["Haunted Castle"].Tablet.Segment9.Line.Rotation.Z == 0
+                    elseif replicated.Remotes.CommF_:InvokeServer("GuitarPuzzleProgress", "Check").Pipes == false then
+                        Quest1 = false;
+                        Quest2 = false;
+                        Quest3 = false;
+                        Quest4 = true;
+                        _tp(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part3.CFrame)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part3.ClickDetector)
+                        _tp(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part4.CFrame)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part4.ClickDetector)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part4.ClickDetector)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part4.ClickDetector)
+                        _tp(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part6.CFrame)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part6.ClickDetector)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part6.ClickDetector)
+                        _tp(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part8.CFrame)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part8.ClickDetector)
+                        _tp(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part10.CFrame)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part10.ClickDetector)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part10.ClickDetector)
+                        fireclickdetector(workspace.Map["Haunted Castle"]["Lab Puzzle"].ColorFloor.Model.Part10.ClickDetector)
+                    end
+                end
+            end
+        end)
+    end
+end)
+local Q = Tabs.Mirage:AddToggle("Q", {
+    Title = "Auto Farm Material Skull Guitar",
+    Description = "",
+    Default = false
+})
+Q:OnChanged(function(Value)
+    _G.AutoMatSoul = Value
+end)
+spawn(function()
+    while wait(Sec) do
+        pcall(function()
+            if _G.AutoMatSoul and GetWP("Skull Guitar") == false then
+                if GetM("Bones") >= 500 and GetM("Ectoplasm") >= 250 and GetM("Dark Fragment") >= 1 then
+                    replicated.Remotes.CommF_:InvokeServer("soulGuitarBuy", true)
+                else
+                    if GetM("Ectoplasm") <= 250 then
+                        if _G.AutoMatSoul and World2 then
+                            local EctoTable = {
+                                "Ship Deckhand",
+                                "Ship Engineer",
+                                "Ship Steward",
+                                "Ship Officer",
+                                "Arctic Warrior"
+                            }
+                            local xz = GetConnectionEnemies(EctoTable)
+                            if xz then
+                                repeat
+                                    task.wait()
+                                    Attack.Kill(xz, _G.AutoMatSoul)
+                                until not _G.AutoMatSoul or not xz.Parent or xz.Humanoid.Health <= 0
+                            else
+                                replicated.Remotes.CommF_:InvokeServer("requestEntrance", Vector3.new(923.21252441406, 126.9760055542, 32852.83203125))
+                            end
+                        else
+                            replicated.Remotes.CommF_:InvokeServer("TravelDressrosa")
+                        end
+                    elseif GetM("Dark Fragment") < 1 then
+                        if _G.AutoMatSoul and World2 then
+                            local black = GetConnectionEnemies("Darkbeard")
+                            if black then
+                                repeat
+                                    task.wait()
+                                    Attack.Kill(black, _G.AutoMatSoul)
+                                until _G.AutoMatSoul or black.Humanoid.Health <= 0
+                            else
+                                _tp(CFrame.new(3798.4575195313, 13.826690673828, - 3399.806640625))
+                            end
+                        else
+                            replicated.Remotes.CommF_:InvokeServer("TravelDressrosa")
+                        end
+                        if not GetConnectionEnemies("Darkbeard") then
+                            Hop()
+                        end
+                    elseif GetM("Bones") <= 500 then
+                        if _G.AutoMatSoul and World3 then
+                            local BonesTable = {
+                                "Reborn Skeleton",
+                                "Living Zombie",
+                                "Demonic Soul",
+                                "Posessed Mummy"
+                            }
+                            local zx = GetConnectionEnemies(BonesTable)
+                            if zx then
+                                repeat
+                                    task.wait()
+                                    Attack.Kill(zx, _G.AutoMatSoul)
+                                until not _G.AutoMatSoul or zx.Humanoid.Health <= 0 or not zx.Parent or zx.Humanoid.Health <= 0
+                            else
+                                _tp(CFrame.new(- 9504.8564453125, 172.14292907714844, 6057.259765625))
+                            end
+                        else
+                            replicated.Remotes.CommF_:InvokeServer("TravelZou")
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
 Tabs.Mirage:AddButton({
     Title = "Talk With Stone",
     Description = "",
@@ -794,27 +1206,7 @@ spawn(function()
         end
     end)
 end)
-local Q = Tabs.Mirage:AddToggle("Q", {
-    Title = "Auto Pull Lever",
-    Description = "",
-    Default = false
-})
-Q:OnChanged(function(Value)
-    _G.Lver = Value
-end)
-spawn(function()
-    while wait(Sec) do
-        if _G.Lver then
-            pcall(function()
-                for x, c in pairs(workspace.Map["Temple of Time"]:GetDescendants()) do
-                    if c.Name == "ProximityPrompt" then
-                        fireproximityprompt(c, math.huge)
-                    end
-                end
-            end)
-        end
-    end
-end)
+
 local Q = Tabs.Mirage:AddToggle("Q", {
     Title = "Auto Train V4",
     Description = "turn on for farm tier + auto upgrade your tier level",
@@ -854,6 +1246,7 @@ spawn(function()
         end)
     end
 end)
+
 
 Tabs.Drago:AddSection("Dojo Quest & Drago Race")
 local DojoQ = Tabs.Drago:AddToggle("DojoQ", {
@@ -1243,57 +1636,7 @@ spawn(function()
         end)
     end
 end)
-Toggle = Tabs.Drago:AddToggle("Toggle", {
-    Title = "Auto Relic Drago Trial [Beta]",
-    Description = "turn on for auto trial v4 you have to COLLECT RELIC by your self",
-    Default = false
-})
-Toggle:OnChanged(function(Value)
-    _G.Relic123 = Value
-end)
-spawn(function()
-    while wait(Sec) do
-        if _G.Relic123 then
-            pcall(function()
-                if workspace.Map:FindFirstChild("DracoTrial") then
-                    replicated.Remotes.DracoTrial:InvokeServer()
-                    wait(.5)
-                    repeat
-                        wait()
-                        _tp(CFrame.new(- 39934.9765625, 10685.359375, 22999.34375))
-                    until not _G.Relic123 or (Root.Position == CFrame.new(- 39934.9765625, 10685.359375, 22999.34375).Position)
-                    repeat
-                        wait()
-                        _tp(CFrame.new(- 40511.25390625, 9376.4013671875, 23458.37890625))
-                    until not _G.Relic123 or (Root.Position == CFrame.new(- 40511.25390625, 9376.4013671875, 23458.37890625).Position)
-                    wait(2.5)
-                    repeat
-                        wait()
-                        _tp(CFrame.new(- 39914.65625, 10685.384765625, 23000.177734375))
-                    until not _G.Relic123 or (Root.Position == CFrame.new(- 39914.65625, 10685.384765625, 23000.177734375).Position)
-                    repeat
-                        wait()
-                        _tp(CFrame.new(- 40045.83203125, 9376.3984375, 22791.287109375))
-                    until not _G.Relic123 or (Root.Position == CFrame.new(- 40045.83203125, 9376.3984375, 22791.287109375).Position)
-                    wait(2.5)
-                    repeat
-                        wait()
-                        _tp(CFrame.new(- 39908.5, 10685.4052734375, 22990.04296875))
-                    until not _G.Relic123 or (Root.Position == CFrame.new(- 39908.5, 10685.4052734375, 22990.04296875).Position)
-                    repeat
-                        wait()
-                        _tp(CFrame.new(- 39609.5, 9376.400390625, 23472.94335975))
-                    until not _G.Relic123 or (Root.Position == CFrame.new(- 39609.5, 9376.400390625, 23472.94335975).Position)
-                else
-                    local drago = workspace.Map.PrehistoricIsland:FindFirstChild("TrialTeleport")
-                    if drago and drago:IsA("Part") then
-                        _tp(CFrame.new(drago.Position))
-                    end
-                end
-            end)
-        end
-    end
-end)
+
 Toggle = Tabs.Drago:AddToggle("Toggle", {
     Title = "Auto Train Drago v4",
     Description = "turn on for training Drago race v4 + auto upgrade tier",
@@ -1331,24 +1674,7 @@ spawn(function()
         end)
     end
 end)
-local dragoTpVolcano = Tabs.Drago:AddToggle("dragoTpVolcano", {
-    Title = "Tween to Drago Trials",
-    Description = "",
-    Default = false
-})
-dragoTpVolcano:OnChanged(function(Value)
-    _G.TpDrago_Prehis = Value
-end)
-spawn(function()
-    while wait(Sec) do
-        if _G.TpDrago_Prehis then
-            local v748 = workspace.Map.PrehistoricIsland:FindFirstChild("TrialTeleport");
-            if (v748 and v748:IsA("Part")) then
-                _tp(CFrame.new(v748.Position))
-            end
-        end
-    end
-end)
+
 local bdrago = Tabs.Drago:AddToggle("bdrago", {
     Title = "Swap Drago Race",
     Description = "",
